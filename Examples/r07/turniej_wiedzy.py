@@ -3,6 +3,8 @@
 # Gra sprawdzająca wiedzę ogólną, odczytująca dane ze zwykłego pliku tekstowego
 
 import sys
+import pickle
+import shelve
 
 def open_file(file_name, mode):
     """Otwórz plik."""
@@ -45,6 +47,20 @@ def welcome(title):
     """Przywitaj gracza i pobierz jego nazwę."""
     print("\t\t Witaj w turnieju wiedzy!\n")
     print("\t\t", title, "\n")
+
+
+def add_score_to_best_scores(score):
+    s = shelve.open("best_scores.dat")
+    best_scores = [s["best_scores"]]
+    BEST_SCORES_SIZE = 5
+    if best_scores.__len__() < BEST_SCORES_SIZE | score > best_scores[BEST_SCORES_SIZE - 1][1]:
+        player_name = input("Twój wynik jest jednym z najlepszych! Podaj imię gracza: ")
+        best_scores.append((player_name, score))
+        best_scores.sort(key=lambda tup: tup[1], reverse=True)
+        if best_scores.__len__() > BEST_SCORES_SIZE:
+            del best_scores[BEST_SCORES_SIZE]
+            # TODO: Save
+
  
 def main():
     trivia_file = open_file("kwiz.txt", "r")
@@ -81,6 +97,7 @@ def main():
 
     print("To było ostatnie pytanie!")
     print("Twój końcowy wynik wynosi", score)
+
  
 main()  
 input("\n\nAby zakończyć program, naciśnij klawisz Enter.")
