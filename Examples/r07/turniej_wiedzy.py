@@ -1,3 +1,4 @@
+# coding=utf-8
 # Turniej wiedzy
 # Gra sprawdzająca wiedzę ogólną, odczytująca dane ze zwykłego pliku tekstowego
 
@@ -23,6 +24,8 @@ def next_line(the_file):
 def next_block(the_file):
     """Zwróć kolejny blok danych z pliku kwiz."""
     category = next_line(the_file)
+
+    points = next_line(the_file)
     
     question = next_line(the_file)
     
@@ -36,7 +39,7 @@ def next_block(the_file):
         
     explanation = next_line(the_file) 
 
-    return category, question, answers, correct, explanation
+    return category, points, question, answers, correct, explanation
 
 def welcome(title):
     """Przywitaj gracza i pobierz jego nazwę."""
@@ -50,10 +53,11 @@ def main():
     score = 0
 
     # pobierz pierwszy blok
-    category, question, answers, correct, explanation = next_block(trivia_file)
+    category, points, question, answers, correct, explanation = next_block(trivia_file)
     while category:
         # zadaj pytanie
         print(category)
+        print("Za poprawną odpowiedź na to pytanie możesz otrzymać następującą ilość punktów:", points)
         print(question)
         for i in range(4):
             print("\t", i + 1, "-", answers[i])
@@ -64,14 +68,14 @@ def main():
         # sprawdź odpowiedź
         if answer == correct:
             print("\nOdpowiedź prawidłowa!", end=" ")
-            score += 1
+            score += int(points)
         else:
             print("\nOdpowiedź niepoprawna.", end=" ")
         print(explanation)
         print("Wynik:", score, "\n\n")
 
         # pobierz kolejny blok
-        category, question, answers, correct, explanation = next_block(trivia_file)
+        category, points, question, answers, correct, explanation = next_block(trivia_file)
 
     trivia_file.close()
 
