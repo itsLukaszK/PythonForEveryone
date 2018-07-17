@@ -2,9 +2,9 @@
 # Turniej wiedzy
 # Gra sprawdzająca wiedzę ogólną, odczytująca dane ze zwykłego pliku tekstowego
 
-import sys
 import pickle
-import shelve
+import sys
+
 
 def open_file(file_name, mode):
     """Otwórz plik."""
@@ -28,18 +28,18 @@ def next_block(the_file):
     category = next_line(the_file)
 
     points = next_line(the_file)
-    
+
     question = next_line(the_file)
-    
+
     answers = []
     for i in range(4):
         answers.append(next_line(the_file))
-        
+
     correct = next_line(the_file)
     if correct:
         correct = correct[0]
-        
-    explanation = next_line(the_file) 
+
+    explanation = next_line(the_file)
 
     return category, points, question, answers, correct, explanation
 
@@ -50,18 +50,27 @@ def welcome(title):
 
 
 def add_score_to_best_scores(score):
-    s = shelve.open("best_scores.dat")
-    best_scores = [s["best_scores"]]
-    BEST_SCORES_SIZE = 5
-    if best_scores.__len__() < BEST_SCORES_SIZE | score > best_scores[BEST_SCORES_SIZE - 1][1]:
-        player_name = input("Twój wynik jest jednym z najlepszych! Podaj imię gracza: ")
-        best_scores.append((player_name, score))
-        best_scores.sort(key=lambda tup: tup[1], reverse=True)
-        if best_scores.__len__() > BEST_SCORES_SIZE:
-            del best_scores[BEST_SCORES_SIZE]
-            # TODO: Save
+    try:
+        f = open("high_scores.dat", "rb")
+        high_scores = pickle.load(f)
+        f.close()
+    except FileNotFoundError:
+        high_scores = []
+    HIGH_SCORES_SIZE = 3
+    is_score_big_enough = False
+    if len(high_scores) >= HIGH_SCORES_SIZE:
+        if score > high_scores[HIGH_SCORES_SIZE - 1][1]:
+            is_score_big_enough = True
+    if len(high_scores) < HIGH_SCORES_SIZE or is_score_big_enough:
+        player_name = input("Twój wynik jest jednym z najlepszych! Podaj swoje imię, które znajdziesz na liście najlepszych wyników: ")
+        high_scores.append((player_name, score))
+        high_scores.sort(key=lambda tup: tup[1], reverse=True)
+        high_scores = high_scores[:HIGH_SCORES_SIZE]
+        f = open("high_scores.dat", "wb")
+        pickle.dump(high_scores, f)
+        f.close()
 
- 
+
 def main():
     trivia_file = open_file("kwiz.txt", "r")
     title = next_line(trivia_file)
@@ -97,7 +106,8 @@ def main():
 
     print("To było ostatnie pytanie!")
     print("Twój końcowy wynik wynosi", score)
+    add_score_to_best_scores(score)
 
- 
-main()  
+
+main()
 input("\n\nAby zakończyć program, naciśnij klawisz Enter.")
