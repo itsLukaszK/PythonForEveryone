@@ -49,7 +49,7 @@ def welcome(title):
     print("\t\t", title, "\n")
 
 
-def add_score_to_best_scores(score):
+def add_score_to_best_scores_pickle(score):
     try:
         f = open("high_scores.dat", "rb")
         high_scores = pickle.load(f)
@@ -69,6 +69,36 @@ def add_score_to_best_scores(score):
         f = open("high_scores.dat", "wb")
         pickle.dump(high_scores, f)
         f.close()
+
+
+def add_score_to_best_scores_text_file(score):
+    try:
+        text_file = open("high_scores.txt", "r")
+        high_scores_temp = text_file.readlines()
+        text_file.close()
+        high_scores = []
+        i = 1
+        for item in high_scores_temp[::2]:
+            points = high_scores_temp[i]
+            high_scores.append((item[:-1], int(points[:-1])))
+            i += 2
+    except FileNotFoundError:
+        high_scores = []
+    HIGH_SCORES_SIZE = 3
+    is_score_big_enough = False
+    if len(high_scores) >= HIGH_SCORES_SIZE:
+        if score > high_scores[HIGH_SCORES_SIZE - 1][1]:
+            is_score_big_enough = True
+    if len(high_scores) < HIGH_SCORES_SIZE or is_score_big_enough:
+        player_name = input(
+            "Twój wynik jest jednym z najlepszych! Podaj swoje imię, które znajdziesz na liście najlepszych wyników: ")
+        high_scores.append((player_name, score))
+        high_scores.sort(key=lambda tup: tup[1], reverse=True)
+        high_scores = high_scores[:HIGH_SCORES_SIZE]
+        text_file = open("high_scores.txt", "w")
+        for item in high_scores:
+            text_file.writelines("%s\n%s\n" % item)
+        text_file.close()
 
 
 def main():
@@ -106,7 +136,7 @@ def main():
 
     print("To było ostatnie pytanie!")
     print("Twój końcowy wynik wynosi", score)
-    add_score_to_best_scores(score)
+    add_score_to_best_scores_text_file(score)
 
 
 main()
